@@ -8,12 +8,6 @@ class WeightMeasurmentRepository {
     return await db.insert(DbFields.tableMass, record.toMap());
   }
 
-  Future<List<WeightMeasurment>> getAllMassRecords() async {
-    final db = await DatabaseServices.instance.database;
-    final result = await db.query(DbFields.tableMass);
-    return result.map((e) => WeightMeasurment.fromMap(e)).toList();
-  }
-
   Future<List<WeightMeasurment>> getAllForUser(int userId) async {
     final db = await DatabaseServices.instance.database;
     final result = await db.query(

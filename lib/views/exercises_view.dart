@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gym_tracker_app/view_models/cwiczenia_view_model.dart';
+import 'package:gym_tracker_app/view_models/exercises_view_model.dart';
 import 'package:gym_tracker_app/views/exercise_detail_view.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +14,7 @@ class _ExercisesViewState extends State<ExercisesView> {
     super.initState();
     WidgetsBinding.instance.addPersistentFrameCallback((_) {
       if (mounted) {
-        final vm = Provider.of<CwiczeniaViewModel>(context, listen: false);
+        final vm = Provider.of<ExercisesViewModel>(context, listen: false);
         vm.loadExercises();
       }
     });
@@ -33,7 +33,7 @@ class _ExercisesViewState extends State<ExercisesView> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Consumer<CwiczeniaViewModel>(
+            Consumer<ExercisesViewModel>(
               builder: (context, vm, child) {
                 return Column(
                   children: [
@@ -63,19 +63,16 @@ class _ExercisesViewState extends State<ExercisesView> {
                           child: DropdownButtonFormField<String>(
                             value: vm.selectedGroup ?? 'Wszystkie',
                             items:
-                                ['Wszystkie', ...vm.availableGroups].map((g) {
+                                ['Wszystkie', ...vm.availableGroups].map((text) {
                                   return DropdownMenuItem(
-                                    value: g,
+                                    value: text,
                                     child: Text(
-                                      g,
+                                      text,
                                       style: TextStyle(color: Colors.white60),
                                     ),
                                   );
                                 }).toList(),
-                            onChanged:
-                                (v) => vm.setSelectedGroup(
-                                  v == 'Wszystkie' ? null : v,
-                                ),
+                            onChanged: vm.setSelectedGroup,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Color(0xFF2E3135),
@@ -107,7 +104,7 @@ class _ExercisesViewState extends State<ExercisesView> {
               },
             ),
 
-            Consumer<CwiczeniaViewModel>(
+            Consumer<ExercisesViewModel>(
               builder: (context, value, child) {
                 if (value.isLoading)
                   return Center(child: CircularProgressIndicator());
@@ -138,7 +135,7 @@ class _ExercisesViewState extends State<ExercisesView> {
                         ),
                         child: ListTile(
                           title: Text(
-                            cwiczenie.nazwa ?? 'Brak nazwy',
+                            cwiczenie.exerciseName ?? 'Brak nazwy',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

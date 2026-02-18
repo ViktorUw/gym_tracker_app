@@ -1,28 +1,28 @@
 import 'package:gym_tracker_app/services/db_fields.dart';
 class User {
   final int? id;
-  final String? imie;
-  final String? nazwisko;
-  final int? wiek;
-  final double? wzrost;
-  final double? waga;
+  final String? first_name;
+  final String? last_name;
+  final int? age;
+  final double? height;
+  final double? weight;
 
-  User({this.id, this.imie, this.nazwisko, this.wiek, this.wzrost, this.waga});
+  User({this.id, this.first_name, this.last_name, this.age, this.height, this.weight});
 
-  factory User.fromMap(Map<String, dynamic> map, {double? waga}) => User(
-    id: map['id_uzytkownika'],
-    imie: map['imie'],
-    nazwisko: map['nazwisko'],
-    wiek: map['wiek'],
-    wzrost: map['wzrost'],
-    waga: waga,
+  factory User.fromMap(Map<String, dynamic> map, {double? weight}) => User(
+    id: map[DbFields.userId],
+    first_name: map[DbFields.userName],
+    last_name: map[DbFields.userSurname],
+    age: map[DbFields.userAge],
+    height: map[DbFields.userHeight],
+    weight: weight,
   );
 
   Map<String, dynamic> toMap() => {
     DbFields.userId : id,
-    DbFields.userName : imie,
-    DbFields.userSurname : nazwisko,
-    DbFields.userAge : wiek,
-    DbFields.userHeight : wzrost,
+    DbFields.userName : first_name,
+    DbFields.userSurname : last_name,
+    DbFields.userAge : age,
+    DbFields.userHeight : height,
   };
 }

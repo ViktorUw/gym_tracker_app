@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gym_tracker_app/view_models/cwiczenia_view_model.dart';
+import 'package:gym_tracker_app/view_models/exercises_view_model.dart';
 import 'package:provider/provider.dart';
 
 class AddExerciseToPlanView extends StatefulWidget {
@@ -32,7 +32,7 @@ class _AddExerciseToPlanViewState extends State<AddExerciseToPlanView> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Consumer<CwiczeniaViewModel>(
+            Consumer<ExercisesViewModel>(
               builder: (context, vm, child) {
                 return Column(
                   children: [
@@ -111,16 +111,16 @@ class _AddExerciseToPlanViewState extends State<AddExerciseToPlanView> {
             const SizedBox(height: 16),
 
             Expanded(
-              child: Consumer<CwiczeniaViewModel>(
+              child: Consumer<ExercisesViewModel>(
                 builder: (context, vm, _) {
                   final filtered =
                       vm.cwiczenia.where((e) {
-                        final matchSearch = e.nazwa!.toLowerCase().contains(
+                        final matchSearch = e.exerciseName!.toLowerCase().contains(
                           vm.searchQuery.toLowerCase(),
                         );
                         final matchGroup =
                             vm.selectedGroup == null ||
-                            e.grupaMiesniowa == vm.selectedGroup;
+                            e.muscleGroup == vm.selectedGroup;
                         return matchSearch && matchGroup;
                       }).toList();
 
@@ -133,16 +133,16 @@ class _AddExerciseToPlanViewState extends State<AddExerciseToPlanView> {
                         color: Color(0xFF23272A),
                         child: ListTile(
                           title: Text(
-                            ex.nazwa!,
+                            ex.exerciseName!,
                             style: TextStyle(color: Colors.white),
                           ),
                           subtitle: Text(
-                            ex.grupaMiesniowa ?? "",
+                            ex.muscleGroup ?? "",
                             style: TextStyle(color: Colors.white54),
                           ),
                           trailing: Icon(Icons.add, color: Colors.yellow),
                           onTap: () async {
-                            await vm.addExerciseToPlan(widget.planId, ex.id!);
+                            await vm.addExerciseToPlan(widget.planId, ex.exerciseID!);
                             vm.loadExercisesForPlan(widget.planId);
                             Navigator.pop(context);
                           }

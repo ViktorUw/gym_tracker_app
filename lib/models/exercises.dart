@@ -1,27 +1,27 @@
 import 'package:gym_tracker_app/services/db_fields.dart';
 
-class Cwiczenia {
-  final int? id;
-  final String? nazwa;
-  final String? opis;
-  final String? grupaMiesniowa;
+class Exercises {
+  final int? exerciseID;
+  final String? exerciseName;
+  final String? exerciseDescription;
+  final String? muscleGroup;
   final String? gifUrl;
 
-  Cwiczenia({this.id, this.nazwa, this.opis, this.grupaMiesniowa, this.gifUrl});
+  Exercises({this.exerciseID, this.exerciseName, this.exerciseDescription, this.muscleGroup, this.gifUrl});
 
-  factory Cwiczenia.fromMap(Map<String, dynamic> map) => Cwiczenia(
-    id: map['id_cwiczenia'],
-    nazwa: map['nazwa_cwiczenia'],
-    opis: map['opis_cwiczenia'],
-    grupaMiesniowa: map['grupa_miesniowa'],
-    gifUrl: map['gif_url'],
+  factory Exercises.fromMap(Map<String, dynamic> map) => Exercises(
+    exerciseID: map[DbFields.exerciseId],
+    exerciseName: map[DbFields.exerciseName],
+    exerciseDescription: map[DbFields.exerciseDesc],
+    muscleGroup: map[DbFields.exerciseMuscleGroup],
+    gifUrl: map[DbFields.exerciseGif],
   );
 
   Map<String, dynamic> toMap() => {
-    DbFields.exerciseId : id,
-    DbFields.exerciseName: nazwa,
-    DbFields.exerciseDesc: opis,
-    DbFields.exerciseMuscleGroup: grupaMiesniowa,
+    DbFields.exerciseId : exerciseID,
+    DbFields.exerciseName: exerciseName,
+    DbFields.exerciseDesc: exerciseDescription,
+    DbFields.exerciseMuscleGroup: muscleGroup,
     DbFields.exerciseGif: gifUrl,
   };
 }

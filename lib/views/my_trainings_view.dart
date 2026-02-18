@@ -35,28 +35,28 @@ class _MyTrainingsViewState extends State<MyTrainingsView> {
 
       String formattedDate;
       DateTime? parsed;
-      if (tr.data != null && tr.data!.isNotEmpty) {
+      if (tr.date != null && tr.date!.isNotEmpty) {
         try {
-          parsed = DateTime.parse(tr.data!).toLocal();
+          parsed = DateTime.parse(tr.date!).toLocal();
           formattedDate =
               '${parsed.year}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')} ${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}';
         } catch (_) {
-          formattedDate = tr.data!;
+          formattedDate = tr.date!;
         }
       } else {
         formattedDate = '';
       }
 
-      final double durationSeconds = tr.czasTrwania ?? 0;
+      final double durationSeconds = tr.duration ?? 0;
       final double durationMinutes = durationSeconds / 60.0;
 
       result.add(
         _TreningDisplayData(
           tr.id,
-          plan?.nazwaPlanu ?? '---',
+          plan?.plan_name ?? '---',
           formattedDate,
           durationMinutes,
-          tr.objetosc ?? 0,
+          tr.volume ?? 0,
           parsed,
         ),
       );

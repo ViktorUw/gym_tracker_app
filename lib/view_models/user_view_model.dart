@@ -5,12 +5,13 @@ import 'package:gym_tracker_app/repositories/weight_measurment_repository.dart';
 import 'package:gym_tracker_app/repositories/user_repository.dart';
 import 'package:gym_tracker_app/services/database_services.dart';
 import 'package:gym_tracker_app/services/db_fields.dart';
-import 'package:gym_tracker_app/models/training_done.dart';
+import 'package:gym_tracker_app/models/completed_trainings.dart';
 import 'package:gym_tracker_app/repositories/training_done_repository.dart';
-import 'package:gym_tracker_app/models/exercise_done.dart';
+import 'package:gym_tracker_app/models/completed_exercise.dart';
 
 class UserViewModel extends ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
+  final treningRepo = TrainingDoneRepository();
   final WeightMeasurmentRepository _pomiarMasyRepository = WeightMeasurmentRepository();
 
   User? _user;
@@ -63,7 +64,7 @@ class UserViewModel extends ChangeNotifier {
   Future<void> loadLatestWeight() async {
     if (_user == null) return;
     final pomiar = await _pomiarMasyRepository.getLatestForUser(_user!.id!);
-    latestWeight = pomiar?.wartosc;
+    latestWeight = pomiar?.value;
     notifyListeners();
   }
 
@@ -71,7 +72,7 @@ class UserViewModel extends ChangeNotifier {
     if (_user == null) return;
     weightRecords = await _pomiarMasyRepository.getAllForUser(_user!.id!);
     if (weightRecords.isNotEmpty) {
-      latestWeight = weightRecords.first.wartosc;
+      latestWeight = weightRecords.first.value;
     }
     notifyListeners();
   }
@@ -95,8 +96,8 @@ class UserViewModel extends ChangeNotifier {
 
       final record = WeightMeasurment(
         userId: _user!.id!,
-        data: formattedDate,
-        wartosc: weight,
+        date: formattedDate,
+        value: weight,
       );
 
       await _pomiarMasyRepository.insertMassRecord(record);
@@ -127,19 +128,18 @@ class UserViewModel extends ChangeNotifier {
     required double startWeight,
     required int durationSeconds,
     required double totalVolume,
-    required List<ExerciseDone> completedExercises,
+    required List<CompletedExercise> completedExercises,
   }) async {
     if (_user == null) return false;
 
-    final treningRepo = TrainingDoneRepository();
 
-    final trening = TrainingDone(
+    final trening = CompletedTraining(
       id: null,
       userId: _user!.id,
-      data: DateTime.now().toIso8601String(),
+      date: DateTime.now().toIso8601String(),
       planId: planId,
-      czasTrwania: durationSeconds.toDouble(),
-      objetosc: totalVolume,
+      duration: durationSeconds.toDouble(),
+      volume: totalVolume,
     );
 
     try {

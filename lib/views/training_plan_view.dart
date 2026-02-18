@@ -68,7 +68,6 @@ class _TrainingPlanViewState extends State<TrainingPlanView> {
                   return Center(child: CircularProgressIndicator());
                 if (value.error != null)
                   return Center(child: Text('Error:  ${value.error}'));
-
                 if (value.plans.isEmpty) {
                   return Center(
                     child: Text(
@@ -87,7 +86,7 @@ class _TrainingPlanViewState extends State<TrainingPlanView> {
                         margin: EdgeInsets.symmetric(vertical: 5),
                         child: ListTile(
                           title: Text(
-                            plan.nazwaPlanu ?? "Plan bez nazwy",
+                            plan.plan_name ?? "Plan bez nazwy",
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -95,10 +94,10 @@ class _TrainingPlanViewState extends State<TrainingPlanView> {
                             ),
                           ),
                           subtitle:
-                              plan.opisPlanu != null &&
-                                      plan.opisPlanu!.isNotEmpty
+                              plan.planDescription != null &&
+                                      plan.planDescription!.isNotEmpty
                                   ? Text(
-                                    plan.opisPlanu!,
+                                    plan.planDescription!,
                                     style: TextStyle(color: Colors.white),
                                   )
                                   : null,

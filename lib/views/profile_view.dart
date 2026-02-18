@@ -19,14 +19,7 @@ class ProfileView extends StatelessWidget {
         backgroundColor: Color(0xFF31353C),
         elevation: 0,
         toolbarHeight: 30,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFFFFB800)),
-            onPressed: () async {
-              await userVM.loadUser();
-            },
-          ),
-        ],
+        
       ),
       body:
           user != null
@@ -47,7 +40,7 @@ class ProfileView extends StatelessWidget {
 
                     // Imię i nazwisko użytkownika
                     Text(
-                      "${user.imie} ${user.nazwisko}",
+                      "${user.first_name} ${user.last_name}",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -69,7 +62,7 @@ class ProfileView extends StatelessWidget {
                         // leading: const Icon(Icons.cake),
                         leading: const Icon(Icons.cake),
                         title: const Text("Wiek"),
-                        subtitle: Text("${user.wiek} lat"),
+                        subtitle: Text("${user.age} lat"),
                       ),
                     ),
 
@@ -78,7 +71,7 @@ class ProfileView extends StatelessWidget {
                       child: ListTile(
                         leading: const Icon(Icons.height),
                         title: const Text("Wzrost"),
-                        subtitle: Text("${user.wzrost} cm"),
+                        subtitle: Text("${user.height} cm"),
                       ),
                     ),
 
@@ -133,32 +126,6 @@ class ProfileView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     
-                    // EKSPORT WSZYSTKUCH DANYCH JSON
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: ElevatedButton.icon(
-                    //     onPressed: () async {
-                    //       try {
-                    //         await ExportService.exportDatabaseToJsonAndShare();
-                            
-                    //       } catch (e) {
-                    //         ScaffoldMessenger.of(context).showSnackBar(
-                    //           SnackBar(content: Text("Błąd eksportu: $e")),
-                    //         );
-                    //       }
-                    //     },
-                    //     icon: const Icon(Icons.download),
-                    //     label: const Text("Eksportuj dane (JSON)"),
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: const Color(0xFF23272A),
-                    //       foregroundColor: const Color(0xFFFFB800),
-                    //       padding: const EdgeInsets.symmetric(vertical: 14),
-                    //       textStyle: const TextStyle(fontSize: 16),
-                    //     ),
-                    //   ),
-                    // ),
-
-                    // const SizedBox(height: 12),
 
                   ],
                 ),

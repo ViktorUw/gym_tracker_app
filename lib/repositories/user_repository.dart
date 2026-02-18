@@ -25,12 +25,4 @@ class UserRepository {
     );
   }
 
-  Future<int> deleteUser(int id) async {
-    final db = await DatabaseServices.instance.database;
-    return await db.delete(
-      DbFields.tableUser,
-      where: '${DbFields.userId} = ?',
-      whereArgs: [id],
-    );
-  }
 }

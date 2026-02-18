@@ -46,17 +46,17 @@ class _RegistrationViewState extends State<RegistrationView> {
       await WeightMeasurmentRepository().insertMassRecord(
         WeightMeasurment(
           userId: 1,
-          data: formattedDate,
-          wartosc: double.parse(_weightController.text),
+          date: formattedDate,
+          value: double.parse(_weightController.text),
         ),
       );
 
       User newUser = User(
         id: 1,
-        imie: _nameController.text,
-        nazwisko: _surnameController.text,
-        wiek: int.parse(_ageController.text),
-        wzrost: double.parse(_heightController.text),
+        first_name: _nameController.text,
+        last_name: _surnameController.text,
+        age: int.parse(_ageController.text),
+        height: double.parse(_heightController.text),
       );
 
       await userVM.addUser(newUser);
@@ -149,6 +149,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                         hint: "Wprowadź wiek",
                         icon: Icons.cake_outlined,
                         isNumber: true,
+                        isPositive: true,
                       ),
                       const SizedBox(height: 14),
                       _darkInput(
@@ -157,6 +158,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                         hint: "Wzrost (cm)",
                         icon: Icons.height,
                         isNumber: true,
+                        isPositive: true,
                       ),
                       const SizedBox(height: 14),
                       _darkInput(
@@ -165,6 +167,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                         hint: "Waga (kg)",
                         icon: Icons.monitor_weight_outlined,
                         isNumber: true,
+                        isPositive: true,
                       ),
                       const SizedBox(height: 20),
 
@@ -205,6 +208,7 @@ class _RegistrationViewState extends State<RegistrationView> {
     required String hint,
     required IconData icon,
     bool isNumber = false,
+    bool isPositive = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -223,7 +227,22 @@ class _RegistrationViewState extends State<RegistrationView> {
           borderSide: BorderSide.none,
         ),
       ),
-      validator: (v) => v == null || v.isEmpty ? "Pole wymagane" : null,
+      validator: (v) {
+        if (v == null || v.isEmpty) {
+          return "Pole wymagane";
+        }
+        if (isPositive && isNumber) {
+          try {
+            final value = double.parse(v);
+            if (value <= 0) {
+              return "Wartość musi być dodatnia";
+            }
+          } catch (e) {
+            return "Nieprawidłowa liczba";
+          }
+        }
+        return null;
+      },
     );
   }
 }

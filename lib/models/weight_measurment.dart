@@ -1,18 +1,18 @@
 import 'package:gym_tracker_app/services/db_fields.dart';
 
 class WeightMeasurment {
-  final int? id;
+  final int? meaasurment_id;
   final int? userId;
-  final String? data;
-  final double? wartosc;
+  final String? date;
+  final double? value;
 
-  WeightMeasurment({this.id, this.userId, this.data, this.wartosc});
+  WeightMeasurment({this.meaasurment_id, this.userId, this.date, this.value});
 
   factory WeightMeasurment.fromMap(Map<String, dynamic> map) => WeightMeasurment(
-    id: map[DbFields.massId],
+    meaasurment_id: map[DbFields.massId],
     userId: map[DbFields.massUserId],
-    data: map[DbFields.massDate],
-    wartosc:
+    date: map[DbFields.massDate],
+    value:
         map[DbFields.massValue] is int
             ? (map[DbFields.massValue] as int).toDouble()
             : map[DbFields.massValue],
@@ -20,7 +20,7 @@ class WeightMeasurment {
 
   Map<String, dynamic> toMap() => {
     DbFields.massUserId: userId,
-    DbFields.massDate: data,
-    DbFields.massValue: wartosc,
+    DbFields.massDate: date,
+    DbFields.massValue: value,
   };
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_tracker_app/mainPage.dart';
 import 'package:gym_tracker_app/services/database_services.dart';
 import 'package:gym_tracker_app/services/seed_initial_data.dart';
-import 'package:gym_tracker_app/view_models/exercise_view_model.dart';
+import 'package:gym_tracker_app/view_models/exercises_view_model.dart';
 import 'package:gym_tracker_app/view_models/training_plans_view_model.dart';
 import 'package:gym_tracker_app/view_models/user_view_model.dart';
 import 'package:gym_tracker_app/views/registration_view.dart';
@@ -18,7 +18,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => TrainingPlansViewModel()),
-        ChangeNotifierProvider(create: (_) => CwiczeniaViewModel()),
+        ChangeNotifierProvider(create: (_) => ExercisesViewModel()),
       ],
       child: GymTrackerApp(),
     ),

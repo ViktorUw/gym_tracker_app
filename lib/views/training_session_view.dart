@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gym_tracker_app/models/exercise_done.dart';
+import 'package:flutter/services.dart';
+import 'package:gym_tracker_app/models/completed_exercise.dart';
 import 'package:gym_tracker_app/views/training_summary_view.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:gym_tracker_app/models/training_plans.dart';
-import 'package:gym_tracker_app/view_models/exercise_view_model.dart';
+import 'package:gym_tracker_app/view_models/exercises_view_model.dart';
 import 'package:gym_tracker_app/view_models/user_view_model.dart';
 import 'package:gym_tracker_app/repositories/training_done_repository.dart';
 import 'package:gym_tracker_app/views/each_training_view.dart';
@@ -32,15 +33,20 @@ class SetData {
     return null;
   }
 
-  /// 1eRM (Epley): 1RM = weight * (1 + reps/30)
+  /// 1eRM (Brzycki): 1RM = weight * 36 / (37 - reps)
+
+  static double? estimate1RMBrzycki(double weight, int reps) {
+    if (weight <= 0) return null;
+    if (reps <= 0) return null;
+    if (reps >= 37) return null;
+    return weight * 36.0 / (37.0 - reps);
+  }
+
   double? get1eRM() {
-    final w = double.tryParse(weightCtrl.text);
+    final w = double.tryParse(weightCtrl.text.replaceAll(',', '.'));
     final r = int.tryParse(repsCtrl.text);
-
     if (w == null || r == null) return null;
-    if (w <= 0 || r <= 0) return null;
-
-    return w * (1.0 + r / 30.0);
+    return estimate1RMBrzycki(w, r);
   }
 }
 
@@ -62,8 +68,10 @@ class TrainingSessionView extends StatefulWidget {
 
 class _TrainingSessionViewState extends State<TrainingSessionView>
     with TickerProviderStateMixin {
-  late Stopwatch _stopwatch;
-  late AnimationController _timerController;
+  DateTime? _startedAt;
+  Duration _pausedDuration = Duration.zero;
+  DateTime? _pauseStartedAt;
+
   int _currentExerciseIndex = 0;
   late Map<int, List<SetData>> _completedSets;
   late VideoPlayerController _videoController;
@@ -77,19 +85,14 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
   void initState() {
     super.initState();
     _completedSets = {};
-    _stopwatch = Stopwatch()..start();
-
-    _timerController = AnimationController(
-      duration: const Duration(hours: 24),
-      vsync: this,
-    )..repeat();
+    _startedAt = DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
       final vm = Provider.of<ExercisesViewModel>(context, listen: false);
 
-      vm.loadExercisesForPlan(widget.plan.id!).then((_) async {
+      vm.loadExercisesForPlan(widget.plan.plan_id!).then((_) async {
         if (!mounted) return;
 
         await _loadLastTrainingId();
@@ -102,10 +105,21 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
     });
   }
 
+  Duration _elapsed() {
+    if (_startedAt == null) return Duration.zero;
+    final now = DateTime.now();
+    final base = now.difference(_startedAt!);
+    final pauseNow =
+        (_pauseStartedAt != null)
+            ? now.difference(_pauseStartedAt!)
+            : Duration.zero;
+    return base - _pausedDuration - pauseNow;
+  }
+
   Future<void> _loadLastTrainingId() async {
     final userVm = Provider.of<UserViewModel>(context, listen: false);
     final userId = userVm.user?.id;
-    final planId = widget.plan.id;
+    final planId = widget.plan.plan_id;
 
     if (userId == null || planId == null) return;
 
@@ -115,7 +129,6 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
         userId: userId,
         planId: planId,
       );
-      if (!mounted) return;
       setState(() => _lastTrainingId = last?.id);
     } finally {
       if (mounted) setState(() => _loadingLastTraining = false);
@@ -155,8 +168,6 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
 
   @override
   void dispose() {
-    _stopwatch.stop();
-    _timerController.dispose();
     for (final exerciseSets in _completedSets.values) {
       for (final setData in exerciseSets) {
         setData.dispose();
@@ -267,7 +278,6 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
     );
 
     if (confirm == true && mounted) {
-      _stopwatch.stop();
       Navigator.of(context).pop();
     }
   }
@@ -301,23 +311,22 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
     if (confirm != true) return;
 
     if (!mounted) return;
-    _stopwatch.stop();
 
     final totalVolume = _calculateTotalVolume();
-    final duration = _stopwatch.elapsed;
+    final duration = _elapsed();
     final formattedTime = _formatTime(duration);
 
     final userVm = Provider.of<UserViewModel>(context, listen: false);
     final vm = Provider.of<ExercisesViewModel>(context, listen: false);
 
-    final List<ExerciseDone> done = [];
+    final List<CompletedExercise> done = [];
     for (final entry in _completedSets.entries) {
       final exerciseIndex = entry.key;
       if (exerciseIndex < 0 || exerciseIndex >= vm.cwiczeniaWPlanie.length) {
         continue;
       }
       final exercise = vm.cwiczeniaWPlanie[exerciseIndex];
-      final cwiczenieId = exercise.id;
+      final cwiczenieId = exercise.exerciseID;
 
       for (final set in entry.value) {
         final w = double.tryParse(set.weightCtrl.text);
@@ -326,22 +335,21 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
           final oneErm = (w > 0 && r > 0) ? (w * (1.0 + r / 30.0)) : null;
 
           done.add(
-            ExerciseDone(
+            CompletedExercise(
               id: null,
               treningId: null,
-              cwiczenieId: cwiczenieId,
-              waga: w,
-              iloscPowtorzen: r,
-              oneRM: oneErm
+              exerciseId: cwiczenieId,
+              weight: w,
+              reps: r,
+              oneRM: oneErm,
             ),
           );
         }
-
       }
     }
 
     final saved = await userVm.saveTreningWykonany(
-      planId: widget.plan.id!,
+      planId: widget.plan.plan_id!,
       trainingName: widget.trainingName,
       startWeight: widget.startingWeight,
       durationSeconds: duration.inSeconds,
@@ -395,7 +403,15 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
               icon: const Icon(Icons.history),
               onPressed:
                   (_lastTrainingId == null)
-                      ? null
+                      ? () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Brak poprzedniego treningu dla tego planu',
+                            ),
+                          ),
+                        );
+                      }
                       : () {
                         Navigator.push(
                           context,
@@ -413,15 +429,11 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: StreamBuilder<int>(
-                stream: Stream.periodic(
-                  const Duration(seconds: 1),
-                  (_) => _stopwatch.elapsedMilliseconds,
-                ),
+                stream: Stream.periodic(const Duration(seconds: 1), (_) => 0),
                 builder: (context, snapshot) {
+                  final d = _elapsed();
                   return Text(
-                    _formatTime(
-                      Duration(milliseconds: _stopwatch.elapsedMilliseconds),
-                    ),
+                    _formatTime(d),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -487,7 +499,7 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            exercise.nazwa ?? 'Brak nazwy',
+                            exercise.exerciseName ?? 'Brak nazwy',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -522,7 +534,7 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            exercise.opis ?? 'Brak opisu',
+                            exercise.exerciseDescription ?? 'Brak opisu',
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -636,6 +648,11 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
                                           const TextInputType.numberWithOptions(
                                             decimal: true,
                                           ),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9.]'),
+                                        ),
+                                      ],
                                       style: const TextStyle(
                                         color: Colors.white,
                                       ),
@@ -666,9 +683,13 @@ class _TrainingSessionViewState extends State<TrainingSessionView>
                                     child: TextField(
                                       controller: setData.repsCtrl,
                                       keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
                                       style: const TextStyle(
                                         color: Colors.white,
                                       ),
+
                                       decoration: InputDecoration(
                                         labelText: 'Powtórzenia',
                                         labelStyle: const TextStyle(

@@ -1,7 +1,6 @@
-// import 'package:sqflite/sqflite.dart';
 import 'package:gym_tracker_app/services/database_services.dart';
 import 'package:gym_tracker_app/services/db_fields.dart';
-import 'package:gym_tracker_app/models/plany_treningowe.dart';
+import 'package:gym_tracker_app/models/training_plans.dart';
 import 'package:sqflite/sqflite.dart';
 
 class PlanRepository {
@@ -32,17 +31,6 @@ class PlanRepository {
     return null;
   }
   
-  Future<TrainingPlans?> getPlanByName(String name) async {
-    final db = await DatabaseServices.instance.database;
-    final result = await db.query(
-      DbFields.tablePlan,
-      where: '${DbFields.planName} = ?',
-      whereArgs: [name],
-    );
-    if (result.isNotEmpty) return TrainingPlans.fromMap(result.first);
-    return null;
-  }
-
   Future<int> updatePlanName(int planId, String newName) async {
     final db = await DatabaseServices.instance.database;
     return await db.update(
@@ -55,18 +43,15 @@ class PlanRepository {
 
   Future<int> deletePlan(int planId) async {
     final db = await DatabaseServices.instance.database;
-
-
     await db.delete(
       DbFields.tablePlanExercise, 
       where: '${DbFields.planExercisePlanId} = ?',
-
       whereArgs: [planId],
     );
 
     final affected = await db.delete(
       DbFields.tablePlan, 
-      where: 'id_planu = ?',
+      where: '${DbFields.planId} = ?',
       whereArgs: [planId],
     );
 

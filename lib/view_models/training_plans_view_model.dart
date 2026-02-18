@@ -30,7 +30,7 @@ class TrainingPlansViewModel extends ChangeNotifier {
     try {
       final removed = await _repo.deletePlan(planId);
       if (removed > 0) {
-        _plans.removeWhere((p) => p.id == planId);
+        _plans.removeWhere((p) => p.plan_id == planId);
         notifyListeners();
         return true;
       }
@@ -45,7 +45,7 @@ class TrainingPlansViewModel extends ChangeNotifier {
     try {
       final updated = await _repo.updatePlanName(planId, newName);
       if (updated > 0) {
-        final idx = _plans.indexWhere((p) => p.id == planId);
+        final idx = _plans.indexWhere((p) => p.plan_id == planId);
         if (idx != -1) {
           _plans[idx] = _plans[idx].copyWith(nazwaPlanu: newName);
           notifyListeners();
@@ -61,7 +61,7 @@ class TrainingPlansViewModel extends ChangeNotifier {
 
   Future<TrainingPlans?> createPlan({required String name, String? description}) async {
     try {
-      final plan = TrainingPlans(id: null, nazwaPlanu: name, opisPlanu: description);
+      final plan = TrainingPlans(plan_id: null, plan_name: name, planDescription: description);
       final newId = await _repo.insertPlan(plan);
       final created = plan.copyWith(id: newId);
       _plans.add(created);

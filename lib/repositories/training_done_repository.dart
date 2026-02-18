@@ -1,40 +1,26 @@
-import 'package:gym_tracker_app/models/training_done.dart';
+import 'package:gym_tracker_app/models/completed_trainings.dart';
 import 'package:gym_tracker_app/services/database_services.dart';
 import 'package:gym_tracker_app/services/db_fields.dart';
-import 'package:gym_tracker_app/models/exercise_done.dart';
+import 'package:gym_tracker_app/models/completed_exercise.dart';
 import 'package:gym_tracker_app/views/training_summary_view.dart';
 
 class TrainingDoneRepository {
-  Future<int> insertTraining(TrainingDone training) async {
-    final db = await DatabaseServices.instance.database;
-    return await db.insert(DbFields.tableTraining, training.toMap());
-  }
 
-  Future<List<TrainingDone>> getAllTrainings() async {
+  Future<List<CompletedTraining>> getAllTrainings() async {
     final db = await DatabaseServices.instance.database;
     final result = await db.query(DbFields.tableTraining);
-    return result.map((e) => TrainingDone.fromMap(e)).toList();
+    return result.map((e) => CompletedTraining.fromMap(e)).toList();
   }
 
-  Future<TrainingDone?> getTrainingById(int id) async {
+  Future<CompletedTraining?> getTrainingById(int id) async {
     final db = await DatabaseServices.instance.database;
     final result = await db.query(
       DbFields.tableTraining,
       where: '${DbFields.trainingId} = ?',
       whereArgs: [id],
     );
-    if (result.isNotEmpty) return TrainingDone.fromMap(result.first);
+    if (result.isNotEmpty) return CompletedTraining.fromMap(result.first);
     return null;
-  }
-
-  Future<int> updateTraining(TrainingDone training) async {
-    final db = await DatabaseServices.instance.database;
-    return await db.update(
-      DbFields.tableTraining,
-      training.toMap(),
-      where: '${DbFields.trainingId} = ?',
-      whereArgs: [training.id],
-    );
   }
 
   Future<int> deleteTraining(int id) async {
@@ -47,8 +33,8 @@ class TrainingDoneRepository {
   }
 
   Future<int> insertTrainingWithExercises(
-    TrainingDone training,
-    List<ExerciseDone> exercises,
+    CompletedTraining training,
+    List<CompletedExercise> exercises,
   ) async {
     final db = await DatabaseServices.instance.database;
     return await db.transaction<int>((txn) async {
@@ -65,7 +51,7 @@ class TrainingDoneRepository {
     });
   }
 
-  Future<TrainingDone?> getLastTrainingForPlan({
+  Future<CompletedTraining?> getLastTrainingForPlan({
     required int userId,
     required int planId,
   }) async {
@@ -81,7 +67,7 @@ class TrainingDoneRepository {
     );
 
     if (res.isEmpty) return null;
-    return TrainingDone.fromMap(res.first);
+    return CompletedTraining.fromMap(res.first);
   }
 
   Future<TrainingSummaryView?> getTrainingSummaryById(int trainingId) async {

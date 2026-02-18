@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_tracker_app/models/training_plans.dart';
-import 'package:gym_tracker_app/view_models/exercise_view_model.dart';
+import 'package:gym_tracker_app/view_models/exercises_view_model.dart';
 import 'package:gym_tracker_app/views/add_exercise_to_plan_view.dart';
 import 'package:gym_tracker_app/views/exercise_detail_view.dart';
 import 'package:gym_tracker_app/view_models/training_plans_view_model.dart';
@@ -22,14 +22,14 @@ class _EachPlanViewState extends State<EachPlanView> {
   @override
   void initState() {
     super.initState();
-    _currentName = widget.plan.nazwaPlanu ?? '';
+    _currentName = widget.plan.plan_name ?? '';
     _nameController.text = _currentName;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final vm = Provider.of<ExercisesViewModel>(context, listen: false);
         vm.loadExercises();
-        vm.loadExercisesForPlan(widget.plan.id!);
+        vm.loadExercisesForPlan(widget.plan.plan_id!);
       }
     });
   }
@@ -48,7 +48,7 @@ class _EachPlanViewState extends State<EachPlanView> {
     }
 
     final vm = Provider.of<TrainingPlansViewModel>(context, listen: false);
-    final success = await vm.updatePlanName(widget.plan.id!, newName);
+    final success = await vm.updatePlanName(widget.plan.plan_id!, newName);
 
     if (success) {
       if (!mounted) return;
@@ -93,7 +93,7 @@ class _EachPlanViewState extends State<EachPlanView> {
 
     try {
       final vm = Provider.of<TrainingPlansViewModel>(context, listen: false);
-      await vm.deletePlan(widget.plan.id!);
+      await vm.deletePlan(widget.plan.plan_id!);
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(
@@ -108,13 +108,9 @@ class _EachPlanViewState extends State<EachPlanView> {
 
   @override
   Widget build(BuildContext context) {
-    const protectedPlanNames = {
-      'FB Poniedzialek',
-      'FB Sroda',
-      'FB Piątek',
-    };
+    const protectedPlanNames = {'FB Poniedzialek', 'FB Sroda', 'FB Piątek'};
 
-    final planName = widget.plan.nazwaPlanu ?? '';
+    final planName = widget.plan.plan_name ?? '';
     final isProtected = protectedPlanNames.contains(planName);
 
     return Scaffold(
@@ -226,7 +222,7 @@ class _EachPlanViewState extends State<EachPlanView> {
                                 MaterialPageRoute(
                                   builder:
                                       (_) => AddExerciseToPlanView(
-                                        planId: widget.plan.id!,
+                                        planId: widget.plan.plan_id!,
                                       ),
                                 ),
                               ),
@@ -251,7 +247,7 @@ class _EachPlanViewState extends State<EachPlanView> {
             ),
             const SizedBox(height: 8),
             Text(
-              widget.plan.opisPlanu ?? "Brak opisu",
+              widget.plan.planDescription ?? "Brak opisu",
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 16),
@@ -271,28 +267,29 @@ class _EachPlanViewState extends State<EachPlanView> {
                 builder: (context, vm, _) {
                   if (vm.isLoading)
                     return const Center(child: CircularProgressIndicator());
-                  if (vm.error != null)
+                  if (vm.error != null) {
                     return Center(
                       child: Text(
                         "${vm.error}",
                         style: const TextStyle(color: Colors.white70),
                       ),
                     );
-                  if (vm.cwiczeniaWPlanie.isEmpty)
+                  }
+                  if (vm.cwiczeniaWPlanie.isEmpty) {
                     return const Center(
                       child: Text(
                         "Brak ćwiczeń w planie",
                         style: TextStyle(color: Colors.white70),
                       ),
                     );
-
+                  }
                   return ListView.builder(
                     itemCount: vm.cwiczeniaWPlanie.length,
                     itemBuilder: (context, index) {
                       final exercise = vm.cwiczeniaWPlanie[index];
 
                       return Dismissible(
-                        key: ValueKey(exercise.id ?? UniqueKey()),
+                        key: ValueKey(exercise.exerciseID ?? UniqueKey()),
                         direction:
                             isProtected
                                 ? DismissDirection.none
@@ -337,8 +334,8 @@ class _EachPlanViewState extends State<EachPlanView> {
                           );
                           vm
                               .removeExerciseFromPlan(
-                                widget.plan.id!,
-                                exercise.id!,
+                                widget.plan.plan_id!,
+                                exercise.exerciseID!,
                               )
                               .then((success) {
                                 if (!mounted) return;
@@ -357,7 +354,7 @@ class _EachPlanViewState extends State<EachPlanView> {
                           ),
                           child: ListTile(
                             title: Text(
-                              exercise.nazwa ?? "Brak nazwy",
+                              exercise.exerciseName ?? "Brak nazwy",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

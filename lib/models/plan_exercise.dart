@@ -2,17 +2,17 @@ import 'package:gym_tracker_app/services/db_fields.dart';
 
 class PlanExercise {
   final int? planId;
-  final int? cwiczenieId;
+  final int? exerciseId;
 
-  PlanExercise({this.planId, this.cwiczenieId});
+  PlanExercise({this.planId, this.exerciseId});
 
   factory PlanExercise.fromMap(Map<String, dynamic> map) => PlanExercise(
     planId: map[DbFields.planExercisePlanId],
-    cwiczenieId: map[DbFields.planExerciseExerciseID],
+    exerciseId: map[DbFields.planExerciseExerciseID],
   );
 
   Map<String, dynamic> toMap() => {
     DbFields.planExercisePlanId: planId,
-    DbFields.planExerciseExerciseID: cwiczenieId,
+    DbFields.planExerciseExerciseID: exerciseId,
   };
 }

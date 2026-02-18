@@ -54,11 +54,11 @@ class _StartTrainingViewState extends State<StartTrainingView> {
   }
 
   void _startTraining() {
-    var name = _selectedPlan?.nazwaPlanu ?? 'Trening';
+    var name = _selectedPlan?.plan_name ?? 'Trening';
     final weight = double.tryParse(_weightCtrl.text);
 
 
-    if (weight == null) {
+    if (weight == null || weight <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wpisz prawidłową wagę')));
       return;
     }
@@ -117,7 +117,7 @@ class _StartTrainingViewState extends State<StartTrainingView> {
                       items: plans.map((p) {
                         return DropdownMenuItem(
                           value: p,
-                          child: Text(p.nazwaPlanu ?? 'Bez nazwy'),
+                          child: Text(p.plan_name ?? 'Bez nazwy'),
                         );
                       }).toList(),
                       onChanged: (v) => setState(() => _selectedPlan = v),

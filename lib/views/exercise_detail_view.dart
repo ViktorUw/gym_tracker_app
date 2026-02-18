@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../models/cwiczenia.dart';
+import '../models/exercises.dart';
 
 class ExerciseDetailView extends StatefulWidget {
-  final Cwiczenia exercise;
+  final Exercises exercise;
 
   const ExerciseDetailView({Key? key, required this.exercise})
     : super(key: key);
@@ -47,7 +47,7 @@ class _ExerciseDetailViewState extends State<ExerciseDetailView> {
       appBar: AppBar(
         backgroundColor: Color(0xFF31353C),
         elevation: 0,
-        title: Text(widget.exercise.nazwa ?? 'Cwiczenie' ),
+        title: Text(widget.exercise.exerciseName ?? 'Cwiczenie' ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -79,7 +79,7 @@ class _ExerciseDetailViewState extends State<ExerciseDetailView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
               child: Text(
-                widget.exercise.nazwa ?? 'Nazwa ćwiczenia',
+                widget.exercise.exerciseName ?? 'Nazwa ćwiczenia',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class _ExerciseDetailViewState extends State<ExerciseDetailView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               child: Text(
-                'grupa mięsniowa: ${widget.exercise.grupaMiesniowa ?? 'Grupa mięśniowa'}',
+                'grupa mięsniowa: ${widget.exercise.muscleGroup ?? 'Grupa mięśniowa'}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.white70,
@@ -103,7 +103,7 @@ class _ExerciseDetailViewState extends State<ExerciseDetailView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
               child: Text(
-                widget.exercise.opis ?? 'Opis.',
+                widget.exercise.exerciseDescription ?? 'Opis.',
                 style: TextStyle(fontSize: 16, color: Colors.white70),
               ),
             ),

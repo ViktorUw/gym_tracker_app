@@ -7,46 +7,42 @@ class ExercisesViewModel extends ChangeNotifier {
   final ExerciseRepository _exRepo = ExerciseRepository();
   final PlanExerciseRepository _exPlanRepo = PlanExerciseRepository();
   final PlanExerciseRepository _planExerciseRepo = PlanExerciseRepository();
-
-  List<Exercises> cwiczenia = [];
-  List<Exercises> _cwiczeniaWPlanie = [];
-  List<Exercises> get cwiczeniaWPlanie => _cwiczeniaWPlanie;
   bool isLoading = false;
   String? error;
+  List<Exercises> get cwiczeniaWPlanie => _cwiczeniaWPlanie;
+  List<Exercises> _cwiczeniaWPlanie = [];
+  List<Exercises> get allExercises => cwiczenia;
 
+
+  List<Exercises> cwiczenia = [];
   String _searchQuery = '';
   String? _selectedGroup;
-
-  List<Exercises> get allExercises => cwiczenia;
   String get searchQuery => _searchQuery;
   String? get selectedGroup => _selectedGroup;
-
   List<String> get availableGroups {
-    final groups = cwiczenia.map((e) => e.grupaMiesniowa).whereType<String>().toSet().toList();
+    final groups = cwiczenia.map((exrc) => exrc.muscleGroup).whereType<String>().toSet().toList();
     groups.sort();
     return groups;
   }
-
-  List<Exercises> get filteredExercises {
-    return cwiczenia.where((e) {
-      final matchesGroup = _selectedGroup == null || _selectedGroup == 'Wszystkie' || e.grupaMiesniowa == _selectedGroup;
-      final q = _searchQuery.trim().toLowerCase();
-      final matchesQuery = q.isEmpty ||
-          (e.nazwa?.toLowerCase().contains(q) ?? false) ||
-          (e.opis?.toLowerCase().contains(q) ?? false);
-      return matchesGroup && matchesQuery;
-    }).toList();
-  }
-
   void setSearchQuery(String q) {
     _searchQuery = q;
     notifyListeners();
   }
-
   void setSelectedGroup(String? group) {
     _selectedGroup = group;
     notifyListeners();
   }
+  List<Exercises> get filteredExercises {
+    return cwiczenia.where((exrc) {
+      final matchesGroup = _selectedGroup == null || _selectedGroup == 'Wszystkie' || exrc.muscleGroup == _selectedGroup;
+      final q = _searchQuery.trim().toLowerCase();
+      final matchesQuery = q.isEmpty ||
+          (exrc.exerciseName?.toLowerCase().contains(q) ?? false) ||
+          (exrc.exerciseDescription?.toLowerCase().contains(q) ?? false);
+      return matchesGroup && matchesQuery;
+    }).toList();
+  }
+
 
   Future<void> loadExercises() async {
     isLoading = true;
@@ -77,7 +73,6 @@ class ExercisesViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
   Future<bool> addExerciseToPlan(int planId, int exerciseId) async {
     try {
       final insertedId = await _planExerciseRepo.addExerciseToPlan(planId, exerciseId);
@@ -88,13 +83,12 @@ class ExercisesViewModel extends ChangeNotifier {
   }
 
   Future<bool> removeExerciseFromPlan(int planId, int exerciseId) async {
-    final index = _cwiczeniaWPlanie.indexWhere((e) => e.id == exerciseId);
+    final index = _cwiczeniaWPlanie.indexWhere((e) => e.exerciseID == exerciseId);
     var removedItem;
     if (index != -1) {
       removedItem = _cwiczeniaWPlanie.removeAt(index);
       notifyListeners();
     }
-
     try {
       final affected = await _planExerciseRepo.deleteExerciseFromPlan(planId, exerciseId);
       if (affected > 0) {

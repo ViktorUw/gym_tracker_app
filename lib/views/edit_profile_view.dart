@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gym_tracker_app/models/user.dart';
 import 'package:gym_tracker_app/view_models/user_view_model.dart';
 import 'package:provider/provider.dart';
@@ -30,10 +31,11 @@ class _EditProfileViewState extends State<EditProfileView> {
       userVM = Provider.of<UserViewModel>(context, listen: false);
       user = userVM.user;
       if (user != null) {
-        nameController.text = user!.imie ?? '';
-        surnameController.text = user!.nazwisko ?? '';
-        ageController.text = user!.wiek != null ? user!.wiek.toString() : '';
-        heightController.text = user!.wzrost != null ? user!.wzrost.toString() : '';
+        nameController.text = user!.first_name ?? '';
+        surnameController.text = user!.last_name ?? '';
+        ageController.text = user!.age != null ? user!.age.toString() : '';
+        heightController.text =
+            user!.height != null ? user!.height.toString() : '';
         weightController.text = userVM.latestWeight?.toString() ?? '';
       }
       _isInit = true;
@@ -91,6 +93,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 16),
               // Wzrost
@@ -101,6 +104,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                ],
               ),
               const SizedBox(height: 16),
               // Waga
@@ -111,6 +117,9 @@ class _EditProfileViewState extends State<EditProfileView> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                ],
               ),
               const SizedBox(height: 24),
               // Zapisz
@@ -126,14 +135,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                       if (userVM.user == null) return;
                       final updatedUser = User(
                         id: userVM.user!.id,
-                        imie: nameController.text,
-                        nazwisko: surnameController.text,
-                        wiek: int.tryParse(ageController.text) ?? 0,
-                        wzrost: double.tryParse(heightController.text) ?? 0.0,
+                        first_name: nameController.text,
+                        last_name: surnameController.text,
+                        age: int.tryParse(ageController.text) ?? 0,
+                        height: double.tryParse(heightController.text) ?? 0.0,
                       );
 
                       userVM.updateUser(updatedUser);
-                      userVM.changeLatestWeight(double.tryParse(weightController.text) ?? 0.0);
+                      userVM.changeLatestWeight(
+                        double.tryParse(weightController.text) ?? 0.0,
+                      );
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Zapisano zmiany")),
@@ -155,6 +166,3 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 }
-
-
-

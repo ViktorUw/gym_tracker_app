@@ -1,32 +1,32 @@
 import 'package:gym_tracker_app/services/db_fields.dart';
 
-class TrainingDone {
+class CompletedTraining {
   final int? id;
   final int? userId;
-  final String? data;
+  final String? date;
   final int? planId;
-  final double? czasTrwania;
-  final double? objetosc;
+  final double? duration;
+  final double? volume;
 
-  TrainingDone({
+  CompletedTraining({
     this.id,
     this.userId,
-    this.data,
+    this.date,
     this.planId,
-    this.czasTrwania,
-    this.objetosc,
+    this.duration,
+    this.volume,
   });
 
-  factory TrainingDone.fromMap(Map<String, dynamic> map) => TrainingDone(
+  factory CompletedTraining.fromMap(Map<String, dynamic> map) => CompletedTraining(
     id: map[DbFields.trainingId],
     userId: map[DbFields.trainingUserId],
-    data: map[DbFields.trainingDate],
+    date: map[DbFields.trainingDate],
     planId: map[DbFields.trainingPlanId],
-    czasTrwania:
+    duration:
         map[DbFields.trainingDuration] is int
             ? (map[DbFields.trainingDuration] as int).toDouble()
             : map[DbFields.trainingDuration],
-    objetosc:
+    volume:
         map[DbFields.trainingVolume] is int
             ? (map[DbFields.trainingVolume] as int).toDouble()
             : map[DbFields.trainingVolume],
@@ -35,9 +35,9 @@ class TrainingDone {
   Map<String, dynamic> toMap() => {
     DbFields.trainingId: id,
     DbFields.trainingUserId: userId,
-    DbFields.trainingDate: data,
+    DbFields.trainingDate: date,
     DbFields.trainingPlanId: planId,
-    DbFields.trainingDuration: czasTrwania,
-    DbFields.trainingVolume: objetosc,
+    DbFields.trainingDuration: duration,
+    DbFields.trainingVolume: volume,
   };
 }

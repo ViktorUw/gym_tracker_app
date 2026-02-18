@@ -20,7 +20,7 @@ class PlanExerciseRepository {
 
     final exists = await db.query(
       DbFields.tablePlanExercise,
-      where: 'id_planu = ? AND id_cwiczenia = ?',
+      where: '${DbFields.planExercisePlanId} = ? AND ${DbFields.planExerciseExerciseID} = ?',
       whereArgs: [planId, exerciseId],
       limit: 1,
     );
@@ -29,8 +29,8 @@ class PlanExerciseRepository {
     return await db.insert(
       DbFields.tablePlanExercise,
       {
-        'id_planu': planId,
-        'id_cwiczenia': exerciseId,
+        DbFields.planExercisePlanId: planId,
+        DbFields.planExerciseExerciseID: exerciseId,
       },
     );
   }

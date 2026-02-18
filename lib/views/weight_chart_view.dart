@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/services.dart';
 import 'package:gym_tracker_app/services/database_services.dart';
 import 'package:gym_tracker_app/services/db_fields.dart';
 import 'package:gym_tracker_app/services/export_service.dart';
@@ -46,8 +47,8 @@ class _WeightChartViewState extends State<WeightChartView> {
     final list = await _repo.getAllForUser(user!.id!);
 
     list.sort((a, b) {
-      final aId = a.id ?? 0;
-      final bId = b.id ?? 0;
+      final aId = a.meaasurment_id ?? 0;
+      final bId = b.meaasurment_id ?? 0;
       return aId.compareTo(bId);
     });
 
@@ -58,7 +59,7 @@ class _WeightChartViewState extends State<WeightChartView> {
   }
 
   Future<void> _deleteRecord(WeightMeasurment record) async {
-    final id = record.id;
+    final id = record.meaasurment_id;
     if (id == null) return;
 
     await _repo.deleteMassRecord(id);
@@ -85,6 +86,9 @@ class _WeightChartViewState extends State<WeightChartView> {
               ),
               decoration: const InputDecoration(labelText: "Waga (kg)"),
               onChanged: (v) => input = v,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+              ],
             ),
             actions: [
               TextButton(
@@ -95,12 +99,6 @@ class _WeightChartViewState extends State<WeightChartView> {
                 onPressed: () {
                   final value = input.trim().replaceAll(',', '.');
                   final number = double.tryParse(value);
-                  if (number == null || number <= 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Wpisz poprawną wagę")),
-                    );
-                    return;
-                  }
                   Navigator.pop(ctx, number);
                 },
                 child: const Text("Zapisz"),
@@ -121,13 +119,17 @@ class _WeightChartViewState extends State<WeightChartView> {
       DbFields.massDate: formattedDate,
       DbFields.massValue: mass,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+    final userVm = context.read<UserViewModel>();
+    userVm.changeLatestWeight(mass);
+    
     onSavedRefresh();
   }
 
   double _minY() {
     if (_records.isEmpty) return 0;
     final min = _records
-        .map((e) => e.wartosc)
+        .map((e) => e.value)
         .reduce((a, b) => a! < b! ? a : b);
     return (min! - 5).floorToDouble();
   }
@@ -135,14 +137,14 @@ class _WeightChartViewState extends State<WeightChartView> {
   double _maxY() {
     if (_records.isEmpty) return 100;
     final max = _records
-        .map((e) => e.wartosc)
+        .map((e) => e.value)
         .reduce((a, b) => a! > b! ? a : b);
     return (max! + 5).ceilToDouble();
   }
 
   List<FlSpot> _spots() {
     return List.generate(_records.length, (i) {
-      return FlSpot(i.toDouble(), _records[i].wartosc!);
+      return FlSpot(i.toDouble(), _records[i].value!);
     });
   }
 
@@ -150,7 +152,7 @@ class _WeightChartViewState extends State<WeightChartView> {
     if (_records.isEmpty) return '';
     if (value < 0 || value >= _records.length) return '';
 
-    final date = _records[value].data;
+    final date = _records[value].date;
     return date!.length >= 10 ? date.substring(5, 10) : date;
   }
 
@@ -216,7 +218,7 @@ class _WeightChartViewState extends State<WeightChartView> {
 
   Widget _recordsList() {
     final list = [..._records];
-    list.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+    list.sort((a, b) => (b.meaasurment_id ?? 0).compareTo(a.meaasurment_id ?? 0));
 
     if (list.isEmpty) {
       return const Center(child: Text('Niema zapisów wagi.'));
@@ -232,8 +234,8 @@ class _WeightChartViewState extends State<WeightChartView> {
 
         return ListTile(
           dense: true,
-          title: Text('${r.wartosc!.toStringAsFixed(1)} kg'),
-          subtitle: Text(r.data!),
+          title: Text('${r.value!.toStringAsFixed(1)} kg'),
+          subtitle: Text(r.date!),
           trailing: IconButton(
             icon: const Icon(Icons.delete_outline),
             color: Color.fromARGB(255, 255, 27, 2),
@@ -244,7 +246,7 @@ class _WeightChartViewState extends State<WeightChartView> {
                     (_) => AlertDialog(
                       title: const Text('Usunąć zapis?'),
                       content: Text(
-                        'Data: ${r.data}\nWaga: ${r.wartosc!.toStringAsFixed(1)} kg',
+                        'Data: ${r.date}\nWaga: ${r.value!.toStringAsFixed(1)} kg',
                       ),
                       actions: [
                         TextButton(

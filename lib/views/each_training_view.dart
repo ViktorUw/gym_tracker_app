@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gym_tracker_app/models/training_done.dart';
-import 'package:gym_tracker_app/models/exercise_done.dart';
+import 'package:gym_tracker_app/models/completed_trainings.dart';
+import 'package:gym_tracker_app/models/completed_exercise.dart';
 import 'package:gym_tracker_app/repositories/training_done_repository.dart';
 import 'package:gym_tracker_app/repositories/exercise_done_repository.dart';
 import 'package:gym_tracker_app/repositories/exercise_repository.dart';
@@ -18,8 +18,8 @@ class EachTrainingView extends StatefulWidget {
 }
 
 class _EachTrainingViewState extends State<EachTrainingView> {
-  TrainingDone? _training;
-  List<ExerciseDone> _doneList = [];
+  CompletedTraining? _training;
+  List<CompletedExercise> _doneList = [];
   Map<int, String> _exerciseNames = {};
   String? _planName;
   bool _isLoading = true;
@@ -55,19 +55,19 @@ class _EachTrainingViewState extends State<EachTrainingView> {
       final done = await doneRepo.getByTrainingId(widget.trainingId);
 
       final exerciseIds =
-          done.map((d) => d.cwiczenieId).whereType<int>().toSet();
+          done.map((d) => d.exerciseId).whereType<int>().toSet();
 
       final Map<int, String> names = {};
 
       for (final id in exerciseIds) {
         final ex = await exerciseRepo.getExerciseById(id);
-        names[id] = ex?.nazwa ?? 'Ćwiczenie #$id';
+        names[id] = ex?.exerciseName ?? 'Ćwiczenie #$id';
       }
 
       String? planName;
       if (trening.planId != null) {
         final plan = await planRepo.getPlanById(trening.planId!);
-        planName = plan?.nazwaPlanu;
+        planName = plan?.plan_name;
       }
 
       setState(() {
@@ -88,10 +88,10 @@ class _EachTrainingViewState extends State<EachTrainingView> {
   
 
   Widget _buildHeader() {
-    final dateStr = _training?.data ?? '';
-    final durationSec = _training?.czasTrwania ?? 0;
+    final dateStr = _training?.date ?? '';
+    final durationSec = _training?.duration ?? 0;
     final durationMin = (durationSec / 60.0);
-    final volume = _training?.objetosc ?? 0;
+    final volume = _training?.volume ?? 0;
 
     String formattedDate = dateStr;
     try {
@@ -217,9 +217,9 @@ class _EachTrainingViewState extends State<EachTrainingView> {
   }
 
   List<Widget> _buildExerciseSections() {
-    final Map<int, List<ExerciseDone>> grouped = {};
+    final Map<int, List<CompletedExercise>> grouped = {};
     for (final item in _doneList) {
-      final id = item.cwiczenieId ?? -1;
+      final id = item.exerciseId ?? -1;
       grouped.putIfAbsent(id, () => []).add(item);
     }
 
@@ -282,8 +282,8 @@ class _EachTrainingViewState extends State<EachTrainingView> {
 
                         /// weight
                         Text(
-                          czw_wyk.waga != null
-                              ? '${czw_wyk.waga!.toStringAsFixed(1)} kg'
+                          czw_wyk.weight != null
+                              ? '${czw_wyk.weight!.toStringAsFixed(1)} kg'
                               : '-',
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -291,7 +291,7 @@ class _EachTrainingViewState extends State<EachTrainingView> {
 
                         /// reps
                         Text(
-                          '${czw_wyk.iloscPowtorzen ?? '-'} powt.',
+                          '${czw_wyk.reps ?? '-'} powt.',
                           style: const TextStyle(color: Colors.white),
                         ),
 

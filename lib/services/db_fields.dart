@@ -1,53 +1,53 @@
 class DbFields {
-  // Uzytkownik
-  static const tableUser = 'Uzytkownik';
-  static const userId = 'id_uzytkownika';
-  static const userName = 'imie';
-  static const userSurname = 'nazwisko';
-  static const userAge = 'wiek';
-  static const userHeight = 'wzrost';
+  // User
+  static const tableUser = 'User';
+  static const userId = 'user_id';
+  static const userName = 'first_name';
+  static const userSurname = 'last_name';
+  static const userAge = 'age';
+  static const userHeight = 'height';
 
-  // Cwiczenia
-  static const tableExercise = 'Cwiczenia';
-  static const exerciseId = 'id_cwiczenia';
-  static const exerciseName = 'nazwa_cwiczenia';
-  static const exerciseDesc = 'opis_cwiczenia';
-  static const exerciseMuscleGroup = 'grupa_miesniowa';
+  // Exercises
+  static const tableExercise = 'Exercises';
+  static const exerciseId = 'exercise_id';
+  static const exerciseName = 'exercise_name';
+  static const exerciseDesc = 'exercise_description';
+  static const exerciseMuscleGroup = 'muscle_group';
   static const exerciseGif = 'gif_url';
 
-  // PlanyTreningowe
-  static const tablePlan = 'PlanyTreningowe';
-  static const planId = 'id_planu';
-  static const planName = 'nazwa_planu';
-  static const planDesc = 'opis_planu';
+  // Training Plans
+  static const tablePlan = 'TrainingPlans';
+  static const planId = 'plan_id';
+  static const planName = 'plan_name';
+  static const planDesc = 'plan_description';
 
-  // Treningi Wykonane
-  static const tableTraining = 'TreningiWykonane';
-  static const trainingId = 'id_treningu';
-  static const trainingUserId = 'id_uzytkownika';
-  static const trainingDate = 'data_treningu';
-  static const trainingPlanId = 'id_planu';
-  static const trainingDuration = 'czas_trwania';
-  static const trainingVolume = 'objetosc';
+  // Completed Trainings
+  static const tableTraining = 'CompletedTrainings';
+  static const trainingId = 'training_id';
+  static const trainingUserId = 'user_id';
+  static const trainingDate = 'training_date';
+  static const trainingPlanId = 'plan_id';
+  static const trainingDuration = 'duration';
+  static const trainingVolume = 'volume';
 
-  // PomiarMasy
-  static const tableMass = 'PomiarMasy';
+  // Mass Measurements
+  static const tableMass = 'WeightMeasurments';
   static const massId = 'id';
-  static const massUserId = 'id_uzytkownika';
-  static const massDate = 'data';
-  static const massValue = 'wartosc';
+  static const massUserId = 'user_id';
+  static const massDate = 'date';
+  static const massValue = 'value';
 
-  //Plan_Cwiczenie
-  static const tablePlanExercise = 'Plan_Cwiczenie';
-  static const planExercisePlanId = 'id_planu';
-  static const planExerciseExerciseID = 'id_cwiczenia';
+  // Plan_Exercise
+  static const tablePlanExercise = 'Plan_Exercise';
+  static const planExercisePlanId = 'plan_id';
+  static const planExerciseExerciseID = 'exercise_id';
 
-  //Cwiczenia Wykonane
-  static const tableExerciseDone = 'CwiczeniaWykonane';
+  // Completed Exercises
+  static const tableExerciseDone = 'CompletedExercises';
   static const exerciseDoneId = 'id';
-  static const exerciseDoneTrainingId = 'id_treningu';
-  static const exerciseDoneExerciseId = 'id_cwiczenia';
-  static const exerciseDoneWeight = 'waga';
-  static const exerciseDoneReps = 'ilosc_powtorzen';
-  static const exerciseDone1RM = 'oneRM';
+  static const exerciseDoneTrainingId = 'training_id';
+  static const exerciseDoneExerciseId = 'exercise_id';
+  static const exerciseDoneWeight = 'weight';
+  static const exerciseDoneReps = 'reps';
+  static const exerciseDone1RM = 'one_rm';
 }
